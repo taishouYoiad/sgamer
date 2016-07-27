@@ -3,35 +3,30 @@ import re
 import urllib
 import urllib2
 
+user_agent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36"
+headers = {'User-Agent' : user_agent}
+regex_url = re.compile(r"</em> <a href=\"(.*?)\.html\".*? onclick=\"atarget\(this\)\" class=\"s xst\">(.*?)</a>\r\n.*?>(\d*)</a></span>")
 def parse_url(url):
-	user_agent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36"
-	headers = {'User-Agent' : user_agent}
 	web_page = []
-	#regex = re.compile(r"</em> <a href=\"(.*?)\.html\".*? onclick=\"atarget\(this\)\" class=\"s xst\">(.*?)</a>\r\n.*?>(\d*)</a></span>")
-	try:
-		request = urllib2.Request(url, headers = headers)
-		response = urllib2.urlopen(request)
-		page_text = response.read().decode('utf-8')
-		target_subject = re.findall("</em> <a href=\"(.*?)\.html\".*? onclick=\"atarget\(this\)\" class=\"s xst\">(.*?)</a>\r\n(?:<img.*?/>\r\n)*.*?>(\d*)</a></span>", page_text)
-		#target_subject = regex.findall(page_text)
-		for subject in target_subject:
-			per_page = {"url" : "http://bbs.sgamer.com/" + subject[0] + ".html", "title" : subject[1], "num" : subject[2]}
-			web_page.append(per_page)
-		#print(web_page)
-		return web_page
-	except Exception as e:
-		print(e)
-
-def parse_page(url):
-	user_agent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36"
-	headers = {'User-Agent' : user_agent}
-	regex = re.compile(r"<td class=\"t_f\" id=\"postmessage_\d*\">(.*?)</td></tr></table>", re.DOTALL)
 	try:
 		request = urllib2.Request(url, headers = headers)
 		response = urllib2.urlopen(request, timeout = 5)
 		page_text = response.read().decode('utf-8')
-		#target_subject = re.findall("<td class=\"t_f\" id=\"postmessage_\d*\">(.*?)</td></tr></table>", page_text, re.DOTALL)
-		target_subject = regex.findall(page_text)
+		target_subject = regex_url.findall(page_text)
+		for subject in target_subject:
+			per_page = {"url" : "http://bbs.sgamer.com/" + subject[0] + ".html", "title" : subject[1], "num" : subject[2]}
+			web_page.append(per_page)
+		return web_page
+	except Exception as e:
+		print(e)
+
+regex_page = re.compile(r"<td class=\"t_f\" id=\"postmessage_\d*\">(.*?)</td></tr></table>", re.DOTALL)
+def parse_page(url):
+	try:
+		request = urllib2.Request(url, headers = headers)
+		response = urllib2.urlopen(request, timeout = 5)
+		page_text = response.read().decode('utf-8')
+		target_subject = regex_page.findall(page_text)
 		for subject in target_subject:
 			subject = re.sub("<.*?>"," ",subject)
 			subject = re.sub("\r\n","",subject)
@@ -42,6 +37,16 @@ def parse_page(url):
 					print(subject)
 	except Exception as e:
 		print(e)
+
+def get_topic_time(url):
+	try:
+		request = urllib2.Request(url, headers = headers)
+		response = urllib2.urlopen(request, timeout = 5)
+		page_text = response.read().decode('utf-8')
+	except Exception as e:
+		print(e)
+	
+
 for x in range(1,20):
 	url = "http://bbs.sgamer.com/forum-44-" + str(x) + ".html"
 	print(url)
