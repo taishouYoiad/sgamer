@@ -15,7 +15,8 @@ def parse_url(url):
 	try:
 		request = urllib2.Request(url, headers = headers)
 		response = urllib2.urlopen(request, timeout = 5)
-		page_text = response.read().decode('utf-8')
+		#page_text = response.read().decode('utf-8')
+		page_text = response.read()
 		target_subject = regex_url.findall(page_text)
 		for subject in target_subject:
 			per_page = {"url" : "http://bbs.sgamer.com/" + subject[0] + ".html", "title" : subject[1], "num" : subject[2]}
@@ -29,7 +30,8 @@ def parse_page(url):
 	try:
 		request = urllib2.Request(url, headers = headers)
 		response = urllib2.urlopen(request, timeout = 5)
-		page_text = response.read().decode('utf-8')
+		#page_text = response.read().decode('utf-8')
+		page_text = response.read()
 		target_subject = regex_page.findall(page_text)
 		for subject in target_subject:
 			subject = re.sub("<.*?>"," ",subject)
@@ -47,7 +49,8 @@ def get_topic_time(url):
 	try:
 		request = urllib2.Request(url, headers = headers)
 		response = urllib2.urlopen(request, timeout = 5)
-		page_text = response.read().decode('utf-8')
+		#page_text = response.read().decode('utf-8')
+		page_text = response.read()
 		#t = regex_time.search(page_text)
 		t = re.search("<em id=.*?<span title=\"(\d*-\d*-\d* \d*:\d*:\d*)\">", page_text)
 		if(hasattr(t, "group")):
