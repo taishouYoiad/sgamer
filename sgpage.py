@@ -5,11 +5,10 @@ import urllib2
 import time
 
 VAILD_TIME = 60 * 60 * 2
-
 #11
 user_agent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36"
 headers = {'User-Agent' : user_agent}
-regex_url = re.compile(r"</em> <a href=\"(.*?)\.html\".*? onclick=\"atarget\(this\)\" class=\"s xst\">(.*?)</a>\r\n.*?>(\d*)</a></span>")
+regex_url = re.compile(r"</em> <a href=\"(.*?)\.html\".*? onclick=\"atarget\(this\)\" class=\"s xst\">(.*?)</a>\r\n(?:<img.*?\r\n)*.*?>(\d*)</a></span>")
 def parse_url(url):
 	web_page = []
 	try:
@@ -51,8 +50,8 @@ def get_topic_time(url):
 		response = urllib2.urlopen(request, timeout = 5)
 		#page_text = response.read().decode('utf-8')
 		page_text = response.read()
-		#t = regex_time.search(page_text)
-		t = re.search("<em id=.*?<span title=\"(\d*-\d*-\d* \d*:\d*:\d*)\">", page_text)
+		t = regex_time.search(page_text)
+		#t = re.search("<em id=.*?<span title=\"(\d*-\d*-\d* \d*:\d*:\d*)\">", page_text)
 		if(hasattr(t, "group")):
 			topic_time = time.mktime(time.strptime(t.group(1),'%Y-%m-%d %H:%M:%S'))
 			return topic_time
