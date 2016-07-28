@@ -2,6 +2,9 @@
 import re
 import urllib
 import urllib2
+import time
+
+VAILD_TIME = 60 * 60 * 2
 
 user_agent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36"
 headers = {'User-Agent' : user_agent}
@@ -38,15 +41,32 @@ def parse_page(url):
 	except Exception as e:
 		print(e)
 
+regex_time = re.compile("发表于 <span title=\"(\d*-\d*-\d* \d*:\d*:\d*)\">")
 def get_topic_time(url):
 	try:
 		request = urllib2.Request(url, headers = headers)
 		response = urllib2.urlopen(request, timeout = 5)
 		page_text = response.read().decode('utf-8')
+		#t = regex_time.search(page_text)
+		t = re.search("<em id=.*?<span title=\"(\d*-\d*-\d* \d*:\d*:\d*)\">", page_text)
+		if(hasattr(t, "group")):
+			topic_time = time.mktime(time.strptime(t.group(1),'%Y-%m-%d %H:%M:%S'))
+			return topic_time
+		else:
+			return 0
 	except Exception as e:
 		print(e)
 	
-
+for x in range(1,20):
+	url = "http://bbs.sgamer.com/forum-44-" + str(x) + ".html"
+	web_pages = parse_url(url)
+	for page in web_pages:
+		topic_time = get_topic_time(page["url"])
+		if(time.time() - topic_time < VAILD_TIME):
+			print(page["title"])
+		else:
+			print("XXXXXXXXXXXXX" + page["title"])
+'''
 for x in range(1,20):
 	url = "http://bbs.sgamer.com/forum-44-" + str(x) + ".html"
 	print(url)
@@ -63,3 +83,4 @@ for x in range(1,20):
 				url = re.sub("-1-", "-"+ str(p) +"-", t_url)
 				parse_page(url)
 		print("================================================================================")
+'''
